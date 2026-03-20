@@ -190,31 +190,36 @@ updateVisits()
 async function openAdmin(){
 
 let pass = prompt("كلمة المرور")
-if(pass !== "1111"){
-alert("خطأ")
+
+if(!pass || pass.trim() !== "1234"){
+alert("كلمة المرور خاطئة")
 return
 }
 
+try{
+
+// الزوار
 let res = await fetch("https://api.countapi.xyz/get/lino-currency-app/visits")
 let data = await res.json()
 
 document.getElementById("visitsAdmin").innerText = data.value
 
+// التحويلات
 let conversions = localStorage.getItem("conversions") || 0
 document.getElementById("conversions").innerText = conversions
 
-document.getElementById("usd_syp").value = rates.USD_SYP
-document.getElementById("usd_try").value = rates.USD_TRY
-document.getElementById("try_syp").value = rates.TRY_SYP
+// إظهار اللوحة
+document.getElementById("adminPanel").style.display = "block"
 
-new Chart(document.getElementById("chart"),{
-type:"bar",
-data:{
-labels:["الزوار","التحويلات"],
-datasets:[{
-data:[data.value,conversions]
-}]
+}catch(e){
+
+// حتى لو فشل الإنترنت تفتح اللوحة
+document.getElementById("adminPanel").style.display = "block"
+
 }
+
+}
+
 })
 
 document.getElementById("adminPanel").style.display="block"

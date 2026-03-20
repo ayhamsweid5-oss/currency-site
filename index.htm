@@ -23,6 +23,7 @@ height:100vh;
 display:flex;
 align-items:center;
 justify-content:center;
+transition:0.3s;
 }
 
 .container{
@@ -32,17 +33,11 @@ border-radius:20px;
 width:350px;
 box-shadow:0 20px 40px rgba(0,0,0,0.2);
 text-align:center;
-animation:fadeIn 0.6s ease;
-}
-
-@keyframes fadeIn{
-from{opacity:0;transform:translateY(20px);}
-to{opacity:1;transform:translateY(0);}
+position:relative;
 }
 
 h1{
 margin-bottom:20px;
-color:#333;
 }
 
 input,select{
@@ -52,13 +47,6 @@ margin-top:10px;
 border-radius:12px;
 border:1px solid #ddd;
 font-size:16px;
-transition:0.3s;
-}
-
-input:focus,select:focus{
-border-color:#667eea;
-outline:none;
-box-shadow:0 0 5px rgba(102,126,234,0.5);
 }
 
 button{
@@ -67,46 +55,58 @@ padding:12px;
 margin-top:15px;
 border:none;
 border-radius:12px;
-background:#667eea;
+background:#4f46e5;
 color:white;
 font-size:16px;
 cursor:pointer;
-transition:0.3s;
-}
-
-button:hover{
-background:#5a67d8;
-transform:scale(1.02);
-}
-
-.swap{
-font-size:24px;
-margin:10px;
-cursor:pointer;
-color:#667eea;
 }
 
 .result{
 margin-top:15px;
 font-size:20px;
 font-weight:bold;
-color:#222;
 }
 
-.settings{
-position:fixed;
-bottom:20px;
-left:20px;
-background:white;
-border-radius:50%;
-width:50px;
-height:50px;
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:20px;
-box-shadow:0 5px 15px rgba(0,0,0,0.3);
+.swap{
+font-size:22px;
+margin:10px;
 cursor:pointer;
+}
+
+/* زر الوضع الليلي */
+.dark-toggle{
+position:absolute;
+top:10px;
+left:10px;
+background:#eee;
+padding:6px 10px;
+border-radius:10px;
+cursor:pointer;
+}
+
+/* الوضع الليلي */
+.dark{
+background:#0f172a;
+}
+
+.dark .container{
+background:#1e293b;
+color:white;
+}
+
+.dark input,
+.dark select{
+background:#334155;
+color:white;
+border:1px solid #555;
+}
+
+.dark button{
+background:#6366f1;
+}
+
+.dark .result{
+color:white;
 }
 
 </style>
@@ -115,6 +115,8 @@ cursor:pointer;
 <body>
 
 <div class="container">
+
+<div class="dark-toggle" onclick="toggleDark()">🌙</div>
 
 <h1>💱 محول العملات</h1>
 
@@ -140,70 +142,69 @@ cursor:pointer;
 
 </div>
 
-<div class="settings" onclick="openAdmin()">⚙️</div>
-
 <script>
 
-// الأسعار
-let rates = JSON.parse(localStorage.getItem("rates")) || {
-USD_SYP:12450,
-USD_TRY:43,
-TRY_SYP:290
+// 🔥 أسعار ثابتة للجميع
+let rates = {
+USD_SYP:11870
+USD_TRY:44
+TRY_SYP:266
 }
 
 // التحويل
 function convert(){
 
-let amount=parseFloat(document.getElementById("amount").value)
-let from=document.getElementById("from").value
-let to=document.getElementById("to").value
+let amount = parseFloat(document.getElementById("amount").value)
+let from = document.getElementById("from").value
+let to = document.getElementById("to").value
 
 if(!amount){
 alert("أدخل المبلغ")
 return
 }
 
-let result=0
+let result = 0
 
-if(from==="USD" && to==="SYP") result=amount*rates.USD_SYP
-else if(from==="SYP" && to==="USD") result=amount/rates.USD_SYP
-else if(from==="USD" && to==="TRY") result=amount*rates.USD_TRY
-else if(from==="TRY" && to==="USD") result=amount/rates.USD_TRY
-else if(from==="TRY" && to==="SYP") result=amount*rates.TRY_SYP
-else if(from==="SYP" && to==="TRY") result=amount/rates.TRY_SYP
+if(from==="USD" && to==="SYP") result = amount * rates.USD_SYP
+else if(from==="SYP" && to==="USD") result = amount / rates.USD_SYP
+else if(from==="USD" && to==="TRY") result = amount * rates.USD_TRY
+else if(from==="TRY" && to==="USD") result = amount / rates.USD_TRY
+else if(from==="TRY" && to==="SYP") result = amount * rates.TRY_SYP
+else if(from==="SYP" && to==="TRY") result = amount / rates.TRY_SYP
 
 document.getElementById("result").innerText =
-amount+" "+from+" = "+result.toFixed(2)+" "+to
+amount + " " + from + " = " + result.toFixed(2) + " " + to
 
 }
 
 // تبديل العملات
 function swap(){
-let from=document.getElementById("from")
-let to=document.getElementById("to")
-let temp=from.value
-from.value=to.value
-to.value=temp
+let from = document.getElementById("from")
+let to = document.getElementById("to")
+
+let temp = from.value
+from.value = to.value
+to.value = temp
 }
 
-// لوحة التحكم
-function openAdmin(){
+// الوضع الليلي
+function toggleDark(){
 
-let pass = prompt("كلمة المرور")
+document.body.classList.toggle("dark")
 
-if(!pass || pass.trim() !== "1234"){
-alert("خطأ")
-return
+if(document.body.classList.contains("dark")){
+localStorage.setItem("darkMode","on")
+}else{
+localStorage.setItem("darkMode","off")
 }
 
-let newRate = prompt("سعر الدولار مقابل السوري", rates.USD_SYP)
-
-if(newRate){
-rates.USD_SYP = parseFloat(newRate)
-localStorage.setItem("rates", JSON.stringify(rates))
-alert("تم التحديث ✅")
 }
 
+// حفظ الوضع
+window.onload = function(){
+if(localStorage.getItem("darkMode")==="on"){
+document.body.classList.add("dark")
+}
 }
 
 </script>

@@ -6,57 +6,37 @@
 
 <title>محول العملات</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-
 body{
-font-family:'Cairo',sans-serif;
+font-family:Arial;
 background:#eceff1;
-margin:0;
 display:flex;
 justify-content:center;
 align-items:center;
 height:100vh;
+margin:0;
 }
 
 .card{
 background:white;
-padding:25px;
-border-radius:16px;
-width:380px;
-box-shadow:0 6px 20px rgba(0,0,0,0.15);
+padding:20px;
+border-radius:15px;
+width:350px;
 text-align:center;
 }
 
 input,select,button{
 width:100%;
-padding:12px;
-margin-top:8px;
-border-radius:10px;
-border:1px solid #ddd;
-font-size:16px;
-}
-
-button{
-background:#1976d2;
-color:white;
-border:none;
-}
-
-.swap{
-font-size:22px;
-margin:10px;
-cursor:pointer;
+padding:10px;
+margin:5px;
 }
 
 .result{
-margin-top:15px;
-font-size:20px;
+margin-top:10px;
 font-weight:bold;
 }
-
 </style>
 </head>
 
@@ -64,31 +44,32 @@ font-weight:bold;
 
 <div class="card">
 
-<h1>💱 محول العملات</h1>
+<h2>💱 محول العملات</h2>
 
-<input id="amount" type="number" placeholder="أدخل المبلغ">
+<input id="amount" placeholder="المبلغ">
 
 <select id="from">
-<option value="USD">🇺🇸 دولار</option>
-<option value="TRY">🇹🇷 ليرة تركية</option>
-<option value="SYP">🇸🇾 ليرة سورية</option>
+<option value="USD">دولار</option>
+<option value="TRY">تركي</option>
+<option value="SYP">سوري</option>
 </select>
 
-<div class="swap" onclick="swap()">⇅</div>
-
 <select id="to">
-<option value="SYP">🇸🇾 ليرة سورية</option>
-<option value="USD">🇺🇸 دولار</option>
-<option value="TRY">🇹🇷 ليرة تركية</option>
+<option value="SYP">سوري</option>
+<option value="USD">دولار</option>
+<option value="TRY">تركي</option>
 </select>
 
 <button onclick="convert()">تحويل</button>
 
 <div id="result" class="result"></div>
 
-<div>👀 الزوار: <span id="visits">...</span></div>
-
 </div>
+
+<!-- زر الإدارة -->
+<button onclick="openAdmin()" style="position:fixed;bottom:10px;left:10px;">
+⚙️
+</button>
 
 <!-- لوحة التحكم -->
 <div id="adminPanel" style="
@@ -98,32 +79,24 @@ top:0;
 left:0;
 width:100%;
 height:100%;
-background:#111;
+background:black;
 color:white;
 padding:20px;
-z-index:999;
 ">
 
-<h2>📊 لوحة التحكم</h2>
+<h2>لوحة التحكم</h2>
 
-<p>👀 الزوار: <span id="visitsAdmin"></span></p>
-<p>🔁 التحويلات: <span id="conversions"></span></p>
+<p>التحويلات: <span id="conversions"></span></p>
 
-<h3>💰 تعديل الأسعار</h3>
+<input id="usd_syp" placeholder="USD→SYP">
+<input id="usd_try" placeholder="USD→TRY">
+<input id="try_syp" placeholder="TRY→SYP">
 
-<input id="usd_syp" placeholder="USD → SYP">
-<input id="usd_try" placeholder="USD → TRY">
-<input id="try_syp" placeholder="TRY → SYP">
-
-<button onclick="saveRates()">💾 حفظ</button>
-
-<canvas id="chart"></canvas>
+<button onclick="saveRates()">حفظ</button>
 
 <button onclick="closeAdmin()">إغلاق</button>
 
 </div>
-
-<button onclick="openAdmin()" style="position:fixed;bottom:10px;left:10px;">⚙️</button>
 
 <script>
 
@@ -146,18 +119,14 @@ alert("أدخل المبلغ")
 return
 }
 
-let USD_SYP = rates.USD_SYP
-let USD_TRY = rates.USD_TRY
-let TRY_SYP = rates.TRY_SYP
-
 let result=0
 
-if(from==="USD" && to==="SYP") result=amount*USD_SYP
-else if(from==="SYP" && to==="USD") result=amount/USD_SYP
-else if(from==="USD" && to==="TRY") result=amount*USD_TRY
-else if(from==="TRY" && to==="USD") result=amount/USD_TRY
-else if(from==="TRY" && to==="SYP") result=amount*TRY_SYP
-else if(from==="SYP" && to==="TRY") result=amount/TRY_SYP
+if(from==="USD" && to==="SYP") result=amount*rates.USD_SYP
+else if(from==="SYP" && to==="USD") result=amount/rates.USD_SYP
+else if(from==="USD" && to==="TRY") result=amount*rates.USD_TRY
+else if(from==="TRY" && to==="USD") result=amount/rates.USD_TRY
+else if(from==="TRY" && to==="SYP") result=amount*rates.TRY_SYP
+else if(from==="SYP" && to==="TRY") result=amount/rates.TRY_SYP
 
 document.getElementById("result").innerText =
 amount+" "+from+" = "+result.toFixed(2)+" "+to
@@ -169,64 +138,32 @@ localStorage.setItem("conversions", count)
 
 }
 
-// تبديل العملات
-function swap(){
-let from=document.getElementById("from")
-let to=document.getElementById("to")
-let temp=from.value
-from.value=to.value
-to.value=temp
-}
-
-// الزوار
-async function updateVisits(){
-let res = await fetch("https://api.countapi.xyz/hit/lino-currency-app/visits")
-let data = await res.json()
-document.getElementById("visits").innerText = data.value
-}
-updateVisits()
-
-// لوحة التحكم
-async function openAdmin(){
+// فتح لوحة التحكم (معدل)
+function openAdmin(){
 
 let pass = prompt("كلمة المرور")
 
 if(!pass || pass.trim() !== "1234"){
-alert("كلمة المرور خاطئة")
+alert("خطأ")
 return
 }
 
-try{
+// تعبئة البيانات
+document.getElementById("conversions").innerText =
+localStorage.getItem("conversions") || 0
 
-// الزوار
-let res = await fetch("https://api.countapi.xyz/get/lino-currency-app/visits")
-let data = await res.json()
+document.getElementById("usd_syp").value = rates.USD_SYP
+document.getElementById("usd_try").value = rates.USD_TRY
+document.getElementById("try_syp").value = rates.TRY_SYP
 
-document.getElementById("visitsAdmin").innerText = data.value
-
-// التحويلات
-let conversions = localStorage.getItem("conversions") || 0
-document.getElementById("conversions").innerText = conversions
-
-// إظهار اللوحة
-document.getElementById("adminPanel").style.display = "block"
-
-}catch(e){
-
-// حتى لو فشل الإنترنت تفتح اللوحة
+// إظهار اللوحة (المهم)
 document.getElementById("adminPanel").style.display = "block"
 
 }
 
-}
-
-})
-
-document.getElementById("adminPanel").style.display="block"
-}
-
+// إغلاق اللوحة
 function closeAdmin(){
-document.getElementById("adminPanel").style.display="none"
+document.getElementById("adminPanel").style.display = "none"
 }
 
 // حفظ الأسعار
@@ -240,7 +177,7 @@ TRY_SYP:parseFloat(document.getElementById("try_syp").value)
 
 localStorage.setItem("rates", JSON.stringify(rates))
 
-alert("تم حفظ الأسعار ✅")
+alert("تم الحفظ ✅")
 
 }
 

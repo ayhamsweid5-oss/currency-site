@@ -1,132 +1,75 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Currency Pro</title>
+<title>محول العملات</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Cairo',sans-serif;
-}
-
 body{
-background:#f1f5f9;
+font-family:'Cairo',sans-serif;
+background:linear-gradient(135deg,#667eea,#764ba2);
 display:flex;
 justify-content:center;
 align-items:center;
 height:100vh;
+margin:0;
 }
 
-/* الكرت */
-.card{
+.container{
 background:white;
 padding:25px;
 border-radius:20px;
-width:360px;
-box-shadow:0 10px 30px rgba(0,0,0,0.15);
-animation:fade 0.5s ease;
-}
-
-@keyframes fade{
-from{opacity:0;transform:translateY(20px);}
-to{opacity:1;}
-}
-
-h1{
+width:340px;
 text-align:center;
+box-shadow:0 10px 30px rgba(0,0,0,0.2);
+}
+
+h2{
 margin-bottom:20px;
-color:#111;
 }
 
-/* الحقول */
-input,select{
+input,select,button{
 width:100%;
-padding:14px;
+padding:12px;
 margin-top:10px;
-border-radius:12px;
-border:1px solid #ddd;
+border-radius:10px;
+border:1px solid #ccc;
 font-size:16px;
-transition:0.3s;
 }
 
-input:focus,select:focus{
-border-color:#2563eb;
-box-shadow:0 0 6px rgba(37,99,235,0.3);
-outline:none;
-}
-
-/* زر */
 button{
-width:100%;
-padding:14px;
-margin-top:15px;
-border:none;
-border-radius:12px;
-background:#2563eb;
+background:#4f46e5;
 color:white;
-font-size:16px;
+border:none;
 cursor:pointer;
-transition:0.3s;
 }
 
 button:hover{
-background:#1d4ed8;
-transform:scale(1.02);
+background:#4338ca;
 }
 
-/* نتيجة */
 .result{
 margin-top:15px;
-text-align:center;
-font-size:20px;
+font-size:18px;
 font-weight:bold;
-color:#111;
 }
 
-/* تبديل */
 .swap{
-text-align:center;
-font-size:22px;
 margin:10px;
-cursor:pointer;
-color:#2563eb;
-}
-
-/* زر الإعدادات */
-.settings{
-position:fixed;
-bottom:20px;
-left:20px;
-background:#2563eb;
-color:white;
-width:55px;
-height:55px;
-border-radius:50%;
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:22px;
-box-shadow:0 5px 15px rgba(0,0,0,0.3);
+font-size:20px;
 cursor:pointer;
 }
-
 </style>
 </head>
 
 <body>
 
-<div class="card">
+<div class="container">
 
-<h1>💱 محول العملات</h1>
+<h2>💱 محول العملات</h2>
 
 <input id="amount" type="number" placeholder="أدخل المبلغ">
 
@@ -150,86 +93,52 @@ cursor:pointer;
 
 </div>
 
-<div class="settings" onclick="admin()">⚙️</div>
-
 <script>
 
-// الأسعار
-let rates = JSON.parse(localStorage.getItem("rates")) || {
-USD_SYP:12450,
-USD_TRY:43,
-TRY_SYP:290
-}
+// 🔥 أسعار ثابتة
+const USD_SYP = 11870
+const USD_TRY = 44
+const TRY_SYP = 266
 
-// تحويل
 function convert(){
 
-let amount=parseFloat(document.getElementById("amount").value)
-let from=document.getElementById("from").value
-let to=document.getElementById("to").value
+let amount = parseFloat(document.getElementById("amount").value)
+let from = document.getElementById("from").value
+let to = document.getElementById("to").value
 
 if(!amount){
 alert("أدخل المبلغ")
 return
 }
 
-let result=0
+let result = 0
 
-if(from==="USD" && to==="SYP") result=amount*rates.USD_SYP
-else if(from==="SYP" && to==="USD") result=amount/rates.USD_SYP
-else if(from==="USD" && to==="TRY") result=amount*rates.USD_TRY
-else if(from==="TRY" && to==="USD") result=amount/rates.USD_TRY
-else if(from==="TRY" && to==="SYP") result=amount*rates.TRY_SYP
-else if(from==="SYP" && to==="TRY") result=amount/rates.TRY_SYP
-
-// حفظ عدد التحويلات
-let count = localStorage.getItem("count") || 0
-count++
-localStorage.setItem("count", count)
+if(from === to){
+result = amount
+}
+else if(from==="USD" && to==="SYP") result = amount * USD_SYP
+else if(from==="SYP" && to==="USD") result = amount / USD_SYP
+else if(from==="USD" && to==="TRY") result = amount * USD_TRY
+else if(from==="TRY" && to==="USD") result = amount / USD_TRY
+else if(from==="TRY" && to==="SYP") result = amount * TRY_SYP
+else if(from==="SYP" && to==="TRY") result = amount / TRY_SYP
 
 document.getElementById("result").innerText =
-amount+" "+from+" = "+result.toFixed(2)+" "+to
+amount + " " + from + " = " + result.toFixed(2) + " " + to
 
 }
 
-// تبديل
+// تبديل العملات
 function swap(){
-let from=document.getElementById("from")
-let to=document.getElementById("to")
-let temp=from.value
-from.value=to.value
-to.value=temp
-}
+let from = document.getElementById("from")
+let to = document.getElementById("to")
 
-// لوحة التحكم
-function admin(){
-
-let pass = prompt("كلمة المرور")
-
-if(pass !== "1234"){
-alert("خطأ ❌")
-return
-}
-
-let newUSD = prompt("دولار → سوري", rates.USD_SYP)
-let newTRY = prompt("دولار → تركي", rates.USD_TRY)
-let newSYR = prompt("تركي → سوري", rates.TRY_SYP)
-
-if(newUSD && newTRY && newSYR){
-
-rates.USD_SYP = parseFloat(newUSD)
-rates.USD_TRY = parseFloat(newTRY)
-rates.TRY_SYP = parseFloat(newSYR)
-
-localStorage.setItem("rates", JSON.stringify(rates))
-
-alert("تم التحديث ✅")
-}
-
+let temp = from.value
+from.value = to.value
+to.value = temp
 }
 
 </script>
 
 </body>
 </html>
-
